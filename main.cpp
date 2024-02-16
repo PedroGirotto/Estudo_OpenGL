@@ -3,8 +3,8 @@
 
 #include <iostream>
 
+#include "src/triangulo.h"
 
-#include "triangulo.h"
 
 
 // Função para calcular o novo buffer para o tamanho da janela
