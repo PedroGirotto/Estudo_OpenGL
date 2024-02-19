@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "src/triangulo.h"
+#include "src/exercicio01.h"
 
 
 
@@ -43,9 +44,15 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
+	// configurações dos arquivos
+	// triangulo.h -> desenhar triangulo
+	//configurarShader();
 
-	// triangulo.h
-	configurarShader();
+	// triangulo.h -> desenhar quadrado
+	//configurarQuadrado();
+
+	// exercicio 01
+	configurar_exercicio01();
 
 
 
@@ -59,10 +66,10 @@ int main() {
 
 
 
-		//triangulo.h
-		desenharTriangulo();
+		//desenharTriangulo();
+		//desenharQuadrado();
+		desenhar_exercicio01();
 
-		
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

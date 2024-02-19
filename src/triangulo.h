@@ -13,6 +13,20 @@ float vertices[] = {
 	0.0f, 0.5f, 0.0f
 };
 
+// os quatro pontos do quadrado
+float vertices_quadrado[] = {
+	0.5f, 0.5f, 0.0f,
+	0.5f, -0.5f, 0.0f,
+	-0.5f, -0.5f, 0.0f,
+	-0.5f, 0.5f, 0.0f
+};
+
+// ordem de desenho dos vertices do quadrado
+unsigned int indices[] = {
+	0, 1, 3,
+	1, 2, 3
+};
+
 // vertex buffer memory - colocar as vértices da figura na memoria
 // da GPU
 unsigned int VBO;
@@ -48,6 +62,10 @@ unsigned int shaderProgram;
 	
 unsigned int VAO;
 
+// element buffer objects - semelhante ao VBO mas decide qual a ordem
+// dos vertices para redenrizar
+unsigned int EBO;
+
 
 
 void configurarShader() {
@@ -79,6 +97,115 @@ void configurarShader() {
 		std::cout << "Erro na compilação do vertex shader\n" << infoLog << "\n";
 	}
 
+
+	// gerar o ID do fragmentShader
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	// conectar o ID do GL com o código
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	// compilar o código GLSL
+	glCompileShader(fragmentShader);
+
+	// pegar o status da compilação do fragmentShader
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		// salvar o erroLog na variável
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		std::cout << "Erro na compilação do fragment shader\n" << infoLog << "\n";
+	}
+
+
+
+	// criar o ID do shaderProgram
+	shaderProgram = glCreateProgram();
+
+	// linkando cada um dos shaders no shaderProgram
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	// mesmo processo para verificar o status da compilação e
+	// imprimir o erroLog
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cout << "Erro na compilação do shader\n" << infoLog << "\n";
+	}
+	// ativar nosso programa com os shaders
+	glUseProgram(shaderProgram);
+
+
+
+	// limpando a memória dos shaders antigos
+	// já estão linkadas então não há porque continuar na memória
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
+
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+	// utilizado para explicar como estar a estrutura do nosso vetor
+	// com os vertices
+	// o openGL precisa disso para conseguir fazer as operações de memória
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+}
+
+
+
+
+void configurarQuadrado() {
+	// gerando o ID do VBO para o openGL
+	glGenBuffers(1, &VBO);
+
+
+
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+
+
+
+	// definindo o tipo de buffer do VBO
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	// copiando os dados do vertices para o buffer VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_quadrado), vertices_quadrado, GL_STATIC_COPY);
+
+
+
+	// gerando o ID do EBO para o openGL
+	glGenBuffers(1, &EBO);
+
+	// definindo o tipo de buffer do EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	// copiando os dados do vertices para o buffer EBO
+	// seguindo a ordem de renderização baseada em indices
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_COPY);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+
+
+	// gerando o ID do objeto GL para o shader
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	// conectando o código para o ID GL
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	// compilar o código
+	glCompileShader(vertexShader);
+
+
+
+	// pegar o status da compilação do shader vertexShader
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		// salvar o erroLog na variável
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		std::cout << "Erro na compilação do vertex shader\n" << infoLog << "\n";
+	}
 
 
 	// gerar o ID do fragmentShader
@@ -126,21 +253,24 @@ void configurarShader() {
 
 
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-
-	// utilizado para explicar como estar a estrutura do nosso vetor
-	// com os vertices
-	// o openGL precisa disso para conseguir fazer as operações de memória
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 
 
-// renderização
+// renderização triangulo
 void desenharTriangulo() {
 	glUseProgram(shaderProgram);
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+
+
+// renderização quadrado
+void desenharQuadrado() {
+	glUseProgram(shaderProgram);
+	glBindVertexArray(VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
 }
