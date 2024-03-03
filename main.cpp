@@ -44,6 +44,9 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
+
+	int status_configuracao;
+
 	// configurações dos arquivos
 	// triangulo.h -> desenhar triangulo
 	//configurarShader();
@@ -51,11 +54,18 @@ int main() {
 	// triangulo.h -> desenhar quadrado
 	//configurarQuadrado();
 
+
 	// exercicio 01
 	configurar_exercicio01();
+	status_configuracao = configurar_shaders_exercicio01();
+	
+	if (status_configuracao == -1) {
+		glfwTerminate();
+	}
 
 
 
+	// loop principal de renderização
 	while (!glfwWindowShouldClose(window)) {
 		processInput(window);
 
@@ -71,9 +81,14 @@ int main() {
 		desenhar_exercicio01();
 
 
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+
+
+	limpar_exercicio01();
 
 
 
